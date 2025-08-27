@@ -10,15 +10,46 @@
  * Вивід лишається тим самим (<ul><li>1: Denys</li></ul>).
  */
 
-class UserReport
+
+
+// class UserReport
+// {
+//     public function getData(): array
+//     {
+//         // Уявні дані з БД
+//         return [['id' => 1, 'name' => 'Denys']];
+//     }
+
+//     public function renderHtml(array $rows): string
+//     {
+//         $html = '<ul>';
+//         foreach ($rows as $r) {
+//             $html .= "<li>{$r['id']}: {$r['name']}</li>";
+//         }
+//         return $html . '</ul>';
+//     }
+
+//     public function exportHtml(): string
+//     {
+//         return $this->renderHtml($this->getData());
+//     }
+// }
+
+// echo (new UserReport())->exportHtml();
+
+
+
+class UserReportRepository
 {
     public function getData(): array
     {
-        // Уявні дані з БД
         return [['id' => 1, 'name' => 'Denys']];
     }
+}
 
-    public function renderHtml(array $rows): string
+class UserReportHtmlRenderer
+{
+    public function render(array $rows): string
     {
         $html = '<ul>';
         foreach ($rows as $r) {
@@ -26,11 +57,27 @@ class UserReport
         }
         return $html . '</ul>';
     }
+}
 
+class UserReport
+{   
+    private $repository;
+    private $renderer;
+    public function __construct( $repository, $renderer) 
+    {
+        $this->repository = $repository;
+        $this->renderer = $renderer;
+    }
+    
     public function exportHtml(): string
     {
-        return $this->renderHtml($this->getData());
+        $rows = $this->repository->getData();
+        return $this->renderer->render($rows);
     }
 }
 
-echo (new UserReport())->exportHtml();
+$repository = new UserReportRepository();
+$renderer = new UserReportHtmlRenderer();
+$report = new UserReport($repository, $renderer);
+
+echo $report->exportHtml();
